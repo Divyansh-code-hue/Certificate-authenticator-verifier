@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -46,6 +47,11 @@
   }
   #thanks h2 { margin: 0 0 8px; }
   #thanks p { color: var(--muted); margin: 4px 0; }
+  .card.wide { max-width: 640px; }
+  #idCanvas {
+    width: 100%; height: auto; margin: 20px 0 4px; border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(20, 30, 70, .25);
+  }
   .ghost { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
   .ghost:hover { background: #eef0ff; }
 </style>
@@ -92,16 +98,15 @@
     <h2>Thanks for your submission!</h2>
     <p>Your details have been received.</p>
     <p>We will verify your certificate soon.</p>
+    <canvas id="idCanvas" width="1012" height="638"></canvas>
+    <button id="downloadBtn">Download ID card (PNG)</button>
     <button class="ghost" id="againBtn">Submit another response</button>
   </div>
 
 </div>
 
 <script type="module">
-  // ============================================================
-  // 1. PASTE YOUR FIREBASE CONFIG HERE
-  //    Firebase Console > Project settings > Your apps > Web app
-  // ============================================================
+
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -147,7 +152,7 @@
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const MAX = 300; // max width/height in px
+        const MAX = 400; // max width/height in px
         const scale = Math.min(1, MAX / Math.max(img.width, img.height));
         const canvas = document.createElement("canvas");
         canvas.width = Math.round(img.width * scale);
@@ -213,14 +218,17 @@
     btn.textContent = "Submitting…";
 
     try {
-      await saveData({
+      const data = {
         name: $("name").value.trim(),
         photo: photoDataUrl,
         universityId: $("uid").value.trim(),
         contactNumber: $("phone").value.trim(),
         dateOfBirth: $("dob").value
-      });
+      };
+      await saveData(data);
+      await drawIDCard(data);
       $("formScreen").style.display = "none";
+      document.querySelector(".card").classList.add("wide");
       $("thanks").style.display = "block";
     } catch (err) {
       console.error(err);
@@ -231,8 +239,119 @@
     }
   });
 
+  // ============================================================
+  // ID CARD (drawn on a canvas so it can be downloaded as PNG)
+  // ============================================================
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  // shrink font until the text fits in maxWidth
+  function fitFont(ctx, text, weight, startSize, minSize, maxWidth, family) {
+    let size = startSize;
+    do {
+      ctx.font = `${weight} ${size}px ${family}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 1;
+    } while (size > minSize);
+    return size;
+  }
+
+  function formatDate(iso) {
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  async function drawIDCard(data) {
+    const canvas = $("idCanvas");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const FONT = "Arial, Helvetica, sans-serif";
+
+    // background + border
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#1e3a8a";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(4, 4, W - 8, H - 8);
+
+    // header band with university name
+    ctx.fillStyle = "#1e3a8a";
+    ctx.fillRect(4, 4, W - 8, 130);
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const title = "GRAPHIC ERA DEEMED TO BE UNIVERSITY";
+    fitFont(ctx, title, "bold", 46, 24, W - 80, FONT);
+    ctx.fillText(title, W / 2, 69);
+
+    // passport-size photo on the left (7:9 ratio, like 35 x 45 mm)
+    const px = 50, py = 190, pw = 250, ph = Math.round(250 * 9 / 7);
+    ctx.fillStyle = "#e5e7eb";
+    ctx.fillRect(px, py, pw, ph);
+    if (data.photo) {
+      const img = await loadImage(data.photo);
+      // crop to fill (object-fit: cover)
+      const target = pw / ph, source = img.width / img.height;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+      if (source > target) { sw = img.height * target; sx = (img.width - sw) / 2; }
+      else { sh = img.width / target; sy = (img.height - sh) / 2; }
+      ctx.drawImage(img, sx, sy, sw, sh, px, py, pw, ph);
+    }
+    ctx.strokeStyle = "#1e3a8a";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(px, py, pw, ph);
+
+    // detail rows: label, then the bold value beside it
+    const rows = [
+      ["Name:", data.name],
+      ["University Roll No.:", data.universityId],
+      ["Date of Birth:", formatDate(data.dateOfBirth)],
+      ["Contact Number:", data.contactNumber]
+    ];
+    const lx = 340, rightEdge = W - 50;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+
+    ctx.font = `normal 27px ${FONT}`;
+    const labelW = Math.max(...rows.map(r => ctx.measureText(r[0]).width));
+    const vx = lx + labelW + 18;
+
+    rows.forEach(([label, value], i) => {
+      const y = 245 + i * 92;
+      ctx.fillStyle = "#4b5563";
+      ctx.font = `normal 27px ${FONT}`;
+      ctx.fillText(label, lx, y);
+
+      ctx.fillStyle = "#111827";
+      fitFont(ctx, value, "bold", 34, 18, rightEdge - vx, FONT);
+      ctx.fillText(value, vx, y);
+
+      // thin divider under each row
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(lx, y + 16);
+      ctx.lineTo(rightEdge, y + 16);
+      ctx.stroke();
+    });
+  }
+
+  $("downloadBtn").addEventListener("click", () => {
+    const a = document.createElement("a");
+    a.download = "id-card.png";
+    a.href = $("idCanvas").toDataURL("image/png");
+    a.click();
+  });
+
   // ---------- submit another ----------
   $("againBtn").addEventListener("click", () => {
+    document.querySelector(".card").classList.remove("wide");
     form.reset();
     photoDataUrl = "";
     $("previewWrap").style.display = "none";
