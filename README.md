@@ -1,0 +1,29 @@
+# CertiSure · Certificate Authenticity Verifier
+**Graphite 26 — Round 2 Hackathon Project (Problem Statement 13)**
+
+## 🎯 Problem Statement (PS 13) Overview
+> **Backstory:** College events are often crashed by people carrying fake or forged participation certificates to claim attendance credit they didn't earn. Organizers have no quick way to tell a genuine certificate from a forged one, especially during busy event verification.
+> 
+> **Solution:** Build a system where an organizer issues each certificate with a unique ID, QR code, and live attendee photo at the time of issuance, storing a matching record (and cryptographic SHA-256 hash) in a simple database. A verifier scans the QR code and captures a live attendee face photo to get an instant **genuine**, **forged**, or **not-found** result — no manual cross-checking needed.
+
+---
+
+## ⚡ Key Updates & Features
+
+1. **Removed Steganography Signature**:
+   - Eliminated the cumbersome LSB hidden signature file uploading.
+2. **Added Live Attendee Photo Capture**:
+   - **At Issuance (Tab 2)**: Organizers snap a live webcam photo of the student (or upload a photo). The photo is embedded directly onto the pass credential card and saved in the SQLite database.
+   - **At Checkpoint (Tab 1)**: Verifiers point the camera at the attendee standing in front of them to take a live desk snapshot.
+   - **Visual Cross-Check**: Side-by-side comparison of the **Registered Photo** vs. **Live Desk Snapshot** instantly proves whether the person presenting the certificate is the actual owner (eliminating certificate sharing and impersonation).
+3. **Instant QR Verification & SHA-256 Integrity Hash**:
+   - Verifies the cryptographic fingerprint of the certificate record in SQLite.
+   - Detects tampered records, expired credentials, and revoked certificates.
+   - Flags suspicious repeated-scanning attempts ($\ge 5$ scans in 5 mins).
+
+---
+
+## 🚀 How to Run the Project
+
+1. **Double-click** `START_HACKATHON_PROJECT.bat` on your Desktop.
+2. Open your browser at: **http://127.0.0.1:5000**
