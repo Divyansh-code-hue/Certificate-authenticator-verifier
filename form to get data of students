@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Certificate Verification Form</title>
+<style>
+  :root {
+    --bg: #f4f6fb; --card: #ffffff; --text: #1d2433; --muted: #6b7385;
+    --primary: #4f46e5; --primary-dark: #4338ca; --border: #d9deea; --error: #dc2626; --ok: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 20px;
+  }
+  .card {
+    background: var(--card); width: 100%; max-width: 480px; padding: 32px;
+    border-radius: 16px; box-shadow: 0 10px 30px rgba(20, 30, 70, .10);
+  }
+  h1 { margin: 0 0 18px; font-size: 1.5rem; }
+  label { display: block; font-weight: 600; font-size: .88rem; margin: 16px 0 6px; }
+  input[type="text"], input[type="tel"], input[type="date"], input[type="file"] {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px;
+    font-size: .95rem; background: #fff; color: var(--text);
+  }
+  input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .err { color: var(--error); font-size: .8rem; min-height: 1em; margin-top: 4px; }
+  
+  .photo-box {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 16px; text-align: center; background: #fafbfc;
+  }
+  .photo-viewport {
+    width: 160px; height: 160px; border-radius: 12px; background: #e2e8f0; margin: 0 auto 12px;
+    overflow: hidden; display: grid; place-items: center; border: 2px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .photo-viewport video, .photo-viewport img { width: 100%; height: 100%; object-fit: cover; }
+  .btn-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+  .btn-sm {
+    padding: 7px 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border);
+    background: #fff; color: var(--text); font-weight: 600; cursor: pointer;
+  }
+  .btn-sm:hover { background: #f1f5f9; }
+  .btn-sm.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-sm.primary:hover { background: var(--primary-dark); }
+
+  button.submit-btn {
+    width: 100%; margin-top: 24px; padding: 13px; border: 0; border-radius: 10px;
+    background: var(--primary); color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer;
+  }
+  button.submit-btn:hover { background: var(--primary-dark); }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  .banner { margin-top: 14px; font-size: .85rem; color: var(--error); text-align: center; }
+  #thanks { display: none; text-align: center; padding: 24px 0; }
+  #thanks .tick {
+    width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 50%;
+    background: var(--ok); color: #fff; font-size: 38px; line-height: 72px;
+  }
+  #thanks h2 { margin: 0 0 8px; }
+  #thanks p { color: var(--muted); margin: 4px 0; }
+  .ghost {
+    display: inline-block; width: 100%; margin-top: 14px; padding: 12px; border-radius: 10px;
+    background: transparent; color: var(--primary); border: 1px solid var(--primary); font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .ghost:hover { background: #eef0ff; }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- FORM SCREEN -->
+  <div id="formScreen">
+    <h1>Certificate Verification</h1>
+
+    <form id="verifyForm" novalidate>
+      <label for="name">Full name</label>
+      <input type="text" id="name" placeholder="e.g. Rahul Sharma" autocomplete="name" />
+      <div class="err" id="nameErr"></div>
+
+      <label>Photo (Take Live Photo or Upload)</label>
+      <div class="photo-box">
+        <div class="photo-viewport">
+          <video id="webcamVideo" autoplay playsinline hidden></video>
+          <img id="photoPreview" alt="Photo preview" hidden />
+          <div id="photoPlaceholder" style="font-size:42px;color:#94a3b8">📷</div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-sm primary" id="startCamBtn">Start Webcam</button>
+          <button type="button" class="btn-sm primary" id="snapPhotoBtn" hidden>Snap Photo</button>
+          <button type="button" class="btn-sm" id="retakePhotoBtn" hidden>Retake</button>
+          <button type="button" class="btn-sm" id="uploadFileBtn">Upload File</button>
+          <input type="file" id="fileInput" accept="image/*" hidden />
+        </div>
+      </div>
+      <div class="err" id="photoErr"></div>
+
+      <label for="uid">University ID</label>
+      <input type="text" id="uid" placeholder="e.g. 25011234" />
+      <div class="err" id="uidErr"></div>
+
+      <label for="phone">Contact number</label>
+      <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" />
+      <div class="err" id="phoneErr"></div>
+
+      <label for="dob">Date of birth</label>
+      <input type="date" id="dob" />
+      <div class="err" id="dobErr"></div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+      <div class="banner" id="banner"></div>
+    </form>
+  </div>
+
+  <!-- THANK YOU SCREEN -->
+  <div id="thanks">
+    <div class="tick">✓</div>
+    <h2>Thanks for your submission!</h2>
+    <p>Saved directly to MongoDB database.</p>
+    <a href="/" class="ghost">Open Verification &amp; Checkpoint Station</a>
+    <button type="button" class="ghost" id="againBtn" style="margin-top:10px">Submit another response</button>
+  </div>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const form = $("verifyForm");
+  let photoDataUrl = "";
+  let webcamStream = null;
+
+  // Live Camera
+  $("startCamBtn").addEventListener("click", async () => {
+    try {
+      webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 480 } });
+      $("webcamVideo").srcObject = webcamStream;
+      $("webcamVideo").hidden = false;
+      $("photoPlaceholder").hidden = true;
+      $("photoPreview").hidden = true;
+      $("startCamBtn").hidden = true;
+      $("snapPhotoBtn").hidden = false;
+      $("retakePhotoBtn").hidden = true;
+    } catch (err) {
+      alert("Camera error: " + err.message);
+    }
+  });
+
+  $("snapPhotoBtn").addEventListener("click", () => {
+    const video = $("webcamVideo");
+    const canvas = document.createElement("canvas");
+    canvas.width = 300; canvas.height = 300;
+    canvas.getContext("2d").drawImage(video, 0, 0, 300, 300);
+    photoDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+    $("photoPreview").src = photoDataUrl;
+    $("photoPreview").hidden = false;
+    $("webcamVideo").hidden = true;
+    if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+    $("snapPhotoBtn").hidden = true;
+    $("retakePhotoBtn").hidden = false;
+    $("photoErr").textContent = "";
+  });
+
+  $("retakePhotoBtn").addEventListener("click", () => {
+    photoDataUrl = "";
+    $("photoPreview").hidden = true;
+    $("startCamBtn").click();
+  });
+
+  // File Upload
+  $("uploadFileBtn").addEventListener("click", () => $("fileInput").click());
+  $("fileInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX = 300;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        photoDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        $("photoPreview").src = photoDataUrl;
+        $("photoPreview").hidden = false;
+        $("photoPlaceholder").hidden = true;
+        $("webcamVideo").hidden = true;
+        $("startCamBtn").hidden = true;
+        $("snapPhotoBtn").hidden = true;
+        $("retakePhotoBtn").hidden = false;
+        $("photoErr").textContent = "";
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function validate() {
+    let ok = true;
+    const set = (id, msg) => { $(id).textContent = msg; if (msg) ok = false; };
+    const name = $("name").value.trim();
+    const uid = $("uid").value.trim();
+    const phone = $("phone").value.trim();
+    const dob = $("dob").value;
+
+    set("nameErr", name.length < 2 ? "Please enter your full name." : "");
+    set("photoErr", photoDataUrl ? "" : "Please provide a photo.");
+    set("uidErr", uid.length < 3 ? "Please enter a valid university ID." : "");
+    set("phoneErr", /^[0-9]{10}$/.test(phone) ? "" : "Enter a valid 10-digit mobile number.");
+    set("dobErr", !dob ? "Please select your date of birth." : "");
+    return ok;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("banner").textContent = "";
+    if (!validate()) return;
+
+    const btn = $("submitBtn");
+    btn.disabled = true;
+    btn.textContent = "Saving to MongoDB…";
+
+    try {
+      const res = await fetch("/api/submit-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: $("name").value.trim(),
+          photo: photoDataUrl,
+          universityId: $("uid").value.trim(),
+          contactNumber: $("phone").value.trim(),
+          dateOfBirth: $("dob").value
+        })
+      });
+
+      if (!res.ok) throw new Error("Server submission error");
+      $("formScreen").style.display = "none";
+      $("thanks").style.display = "block";
+    } catch (err) {
+      $("banner").textContent = "Error saving data to MongoDB. Please try again.";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Submit";
+    }
+  });
+
+  $("againBtn").addEventListener("click", () => {
+    form.reset();
+    photoDataUrl = "";
+    $("photoPreview").hidden = true;
+    $("photoPlaceholder").hidden = false;
+    $("startCamBtn").hidden = false;
+    $("retakePhotoBtn").hidden = true;
+    $("thanks").style.display = "none";
+    $("formScreen").style.display = "block";
+  });
+</script>
+</body>
+</html>
