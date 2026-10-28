@@ -1,10 +1,9 @@
 # CertiSure · Certificate Authenticity Verifier
-**Graphite 26 — Round 2 Hackathon Project (Problem Statement 13)**
 
-## 🎯 Problem Statement (PS 13) Overview
-> **Backstory:** College events are often crashed by people carrying fake or forged participation certificates to claim attendance credit they didn't earn. Organizers have no quick way to tell a genuine certificate from a forged one, especially during busy event verification.
+## 🎯 Problem Statement 
+**Backstory:** College events are often crashed by people carrying fake or forged participation certificates to claim attendance credit they didn't earn. Organizers have no quick way to tell a genuine certificate from a forged one, especially during busy event verification.
 > 
-> **Solution:** Build a system where an organizer issues each certificate with a unique ID, QR code, and live attendee photo at the time of issuance, storing a matching record (and cryptographic SHA-256 hash) in a simple database. A verifier scans the QR code and captures a live attendee face photo to get an instant **genuine**, **forged**, or **not-found** result — no manual cross-checking needed.
+> **Solution:** Build a system where an organizer issues each certificate with a unique ID, QR code, and live attendee photo at the time of issuance, storing a matching record in a simple database. A verifier scans the QR code and captures a live attendee face photo to get an instant **genuine**, **forged**, or **not-found** result — no manual cross-checking needed.
 
 ---
 
@@ -19,11 +18,7 @@
 3. **Instant QR Verification & SHA-256 Integrity Hash**:
    - Verifies the cryptographic fingerprint of the certificate record in SQLite.
    - Detects tampered records, expired credentials, and revoked certificates.
-   - Flags suspicious repeated-scanning attempts ($\ge 5$ scans in 5 mins).
+   - Flags suspicious repeated-scanning attempts .
 
 ---
 
-## 🚀 How to Run the Project
-
-1. **Double-click** `START_HACKATHON_PROJECT.bat` on your Desktop.
-2. Open your browser at: **http://127.0.0.1:5000**
