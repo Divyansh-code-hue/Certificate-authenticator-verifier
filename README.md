@@ -3,7 +3,7 @@
 ## 🎯 Problem Statement 
 **Backstory:** College events are often crashed by people carrying fake or forged participation certificates to claim attendance credit they didn't earn. Organizers have no quick way to tell a genuine certificate from a forged one, especially during busy event verification.
 > 
-> **Solution:** Build a system where an organizer issues each certificate with a unique ID, QR code, and live attendee photo at the time of issuance, storing a matching record in a simple database. A verifier scans the QR code and captures a live attendee face photo to get an instant **genuine**, **forged**, or **not-found** result — no manual cross-checking needed.
+> **Solution:** Building a system where an organizer issues each certificate with a unique ID, QR code, and live attendee photo at the time of issuance, storing a matching record in a simple database. A verifier scans the QR code and captures a live attendee face photo to get an instant **genuine**, **forged**, or **not-found** result — no manual cross-checking needed.
 
 ---
 
