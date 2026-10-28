@@ -9,16 +9,15 @@
 
 ## ⚡ Key Updates & Features
 
-1. **Removed Steganography Signature**:
+1. Removed Steganography Signature:
    - Eliminated the cumbersome LSB hidden signature file uploading.
-2. **Added Live Attendee Photo Capture**:
-   - **At Issuance (Tab 2)**: Organizers snap a live webcam photo of the student (or upload a photo). The photo is embedded directly onto the pass credential card and saved in the SQLite database.
-   - **At Checkpoint (Tab 1)**: Verifiers point the camera at the attendee standing in front of them to take a live desk snapshot.
+2. Added Live Attendee Photo Capture:
+   - **At Issuance**: Organizers snap a live webcam photo of the student (or upload a photo). The photo is embedded directly onto the pass credential card and saved in the SQLite database.
+   - **At Checkpoint **: Verifiers point the camera at the attendee standing in front of them to take a live desk snapshot.
    - **Visual Cross-Check**: Side-by-side comparison of the **Registered Photo** vs. **Live Desk Snapshot** instantly proves whether the person presenting the certificate is the actual owner (eliminating certificate sharing and impersonation).
-3. **Instant QR Verification & SHA-256 Integrity Hash**:
-   - Verifies the cryptographic fingerprint of the certificate record in SQLite.
-   - Detects tampered records, expired credentials, and revoked certificates.
-   - Flags suspicious repeated-scanning attempts .
+3. Instant QR Verification :
+   - Verifies the cryptographic fingerprint of the certificate record in Firebase.
+   -    - Flags suspicious repeated-scanning attempts .
 
 ---
 
