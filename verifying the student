@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Authenticity Verification | CertiSure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #101a31;
+      --surface: #ffffff;
+      --bg: #f5f7fb;
+      --ink: #1c2942;
+      --muted: #65748b;
+      --line: #e2e8f0;
+      --green: #10b981;
+      --green-bg: #ecfdf5;
+      --green-border: #a7f3d0;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
+      --amber: #f59e0b;
+      --amber-bg: #fffbeb;
+      --amber-border: #fde68a;
+      --blue: #3b68f5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--navy);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 19px;
+      color: #fff;
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #4f46e5, #3b82f6);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+    .badge-sub { font-size: 12px; color: #94a3b8; }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 16px;
+    }
+    .card {
+      width: min(100%, 640px);
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: 0 20px 45px rgba(16, 26, 49, 0.08);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .status-banner {
+      padding: 30px 24px;
+      text-align: center;
+      border-bottom: 1px solid transparent;
+    }
+    .status-banner.genuine { background: var(--green-bg); border-color: var(--green-border); color: #065f46; }
+    .status-banner.tampered,
+    .status-banner.revoked,
+    .status-banner.not_found { background: var(--red-bg); border-color: var(--red-border); color: #991b1b; }
+    .status-banner.expired { background: var(--amber-bg); border-color: var(--amber-border); color: #92400e; }
+    .status-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      margin: 0 auto 14px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+    }
+    .genuine .status-icon { background: #d1fae5; color: var(--green); }
+    .tampered .status-icon,
+    .revoked .status-icon,
+    .not_found .status-icon { background: #fee2e2; color: var(--red); }
+    .expired .status-icon { background: #fef3c7; color: var(--amber); }
+
+    .status-title {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+    .status-desc { font-size: 14px; opacity: 0.9; max-width: 480px; margin: 0 auto; line-height: 1.5; }
+
+    .details { padding: 24px 28px; }
+
+    .attendee-profile {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+    .attendee-photo-wrap {
+      width: 76px;
+      height: 76px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #e2e8f0;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    .attendee-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .attendee-meta h3 {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .attendee-meta p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .verified-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--green);
+      background: #d1fae5;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .meta-item {
+      background: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #edf2f7;
+    }
+    .meta-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .meta-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      word-break: break-all;
+    }
+    .hash-box {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    .hash-label {
+      color: #38bdf8;
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .hash-value { word-break: break-all; color: #f1f5f9; }
+    .actions { display: flex; gap: 12px; }
+    .btn {
+      flex: 1;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-secondary { background: #edf2f7; color: var(--ink); }
+    footer { text-align: center; padding: 20px; font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="brand">
+      <span class="brand-mark">✓</span>
+      <span>CertiSure</span>
+    </a>
+    <span class="badge-sub">Live Authenticity Verifier</span>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="status-banner {{ result }}">
+        <div class="status-icon">
+          {% if result == 'genuine' %}✓
+          {% elif result == 'tampered' %}✕
+          {% elif result == 'revoked' %}⚠
+          {% elif result == 'expired' %}⏱
+          {% else %}?{% endif %}
+        </div>
+        <h1 class="status-title">
+          {% if result == 'genuine' %}Verified Genuine Credential
+          {% elif result == 'tampered' %}Tamper Detected / Forged
+          {% elif result == 'revoked' %}Certificate Revoked
+          {% elif result == 'expired' %}Certificate Expired
+          {% else %}Record Not Found{% endif %}
+        </h1>
+        <p class="status-desc">{{ message }}</p>
+      </div>
+
+      <div class="details">
+        {% if certificate %}
+        <div class="attendee-profile">
+          <div class="attendee-photo-wrap">
+            {% if certificate.photo_data %}
+            <img src="{{ certificate.photo_data }}" alt="Attendee Photo">
+            {% else %}
+            <span style="font-size: 28px; color: var(--muted);">👤</span>
+            {% endif %}
+          </div>
+          <div class="attendee-meta">
+            <h3>{{ certificate.recipient_name }}</h3>
+            <p>{{ certificate.event_name }}</p>
+            <span class="verified-chip">✓ Visual Identity &amp; Record Verified</span>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Credential ID</div>
+            <div class="meta-val" style="font-family: monospace;">{{ certificate.certificate_id }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Status</div>
+            <div class="meta-val" style="color: {% if certificate.status == 'valid' %}var(--green){% else %}var(--red){% endif %}; text-transform: uppercase;">
+              ● {{ certificate.status }}
+            </div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Issued At</div>
+            <div class="meta-val">{{ certificate.issued_at }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Expires At</div>
+            <div class="meta-val">{{ certificate.expires_at or 'Permanent' }}</div>
+          </div>
+        </div>
+
+        <div class="hash-box">
+          <div class="hash-label">
+            <span>CRYPTOGRAPHIC RECORD FINGERPRINT (SHA-256)</span>
+            <span>INTEGRITY VERIFIED ✓</span>
+          </div>
+          <div class="hash-value">{{ certificate.record_hash }}</div>
+        </div>
+        {% else %}
+        <div class="meta-item" style="margin-bottom: 20px;">
+          <div class="meta-label">Queried Identifier</div>
+          <div class="meta-val" style="font-family: monospace;">{{ certificate_id }}</div>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+          <a href="/" class="btn btn-primary">Open Main Verifier App</a>
+          <a href="/api/analytics/{{ certificate_id }}" class="btn btn-secondary" target="_blank">View Verification Audit Log</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    CertiSure · Real-time Photo &amp; QR Certificate Authenticity System
+  </footer>
+</body>
+</html>
